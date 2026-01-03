@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "oredetector",
+  "version": "${version}",
+  "name": "OreDetector",
+  "description": "Server-side ore mining detection and logging mod with permission support",
+  "authors": [
+    "HelluPeptic"
+  ],
+  "contact": {},
+  "license": "MIT",
+  "environment": "server",
+  "entrypoints": {
+    "main": [
+      "com.minedetector.MineDetectorMod"
+    ]
+  },
+  "mixins": [
+    "minedetector.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "minecraft": "~1.21.11",
+    "java": ">=21",
+    "fabric-api": "*"
+  },
+  "suggests": {
+    "luckperms": "*"
+  }
+}
