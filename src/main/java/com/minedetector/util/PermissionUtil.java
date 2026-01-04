@@ -1,26 +1,31 @@
 package com.minedetector.util;
 
-import net.luckperms.api.LuckPerms;
-import net.luckperms.api.LuckPermsProvider;
-import net.luckperms.api.model.user.User;
 import net.minecraft.server.level.ServerPlayer;
-import org.jetbrains.annotations.Nullable;
 
 public class PermissionUtil {
 
-    @Nullable
-    private static LuckPerms luckPerms;
+    private static Boolean luckPermsAvailable = null;
+    private static Object luckPermsInstance = null;
 
     static {
         try {
-            luckPerms = LuckPermsProvider.get();
-        } catch (IllegalStateException e) {
-            luckPerms = null;
+            Class.forName("net.luckperms.api.LuckPermsProvider");
+            luckPermsAvailable = true;
+            try {
+                Class<?> providerClass = Class.forName("net.luckperms.api.LuckPermsProvider");
+                luckPermsInstance = providerClass.getMethod("get").invoke(null);
+            } catch (Exception e) {
+                luckPermsAvailable = false;
+                luckPermsInstance = null;
+            }
+        } catch (ClassNotFoundException e) {
+            luckPermsAvailable = false;
+            luckPermsInstance = null;
         }
     }
 
     public static boolean hasPermission(ServerPlayer player, String permission) {
-        // For now, just return true for all players - can be enhanced later
+        // For now, just return true for all players - can be enhanced later with LuckPerms integration
         return true;
     }
 
