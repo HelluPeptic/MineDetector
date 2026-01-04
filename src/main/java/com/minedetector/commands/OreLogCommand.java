@@ -141,8 +141,8 @@ public class OreLogCommand {
             String teleportCommand = String.format("/oretp %d %d %d", entry.getX(), entry.getY(), entry.getZ());
 
             // Use RunCommand with custom oretp command (won't trigger security dialog)
-            ClickEvent clickEvent = new ClickEvent.RunCommand(teleportCommand);
-            HoverEvent hoverEvent = new HoverEvent.ShowText(Component.literal("§aClick to teleport"));
+            ClickEvent clickEvent = new ClickEvent(ClickEvent.Action.RUN_COMMAND, teleportCommand);
+            HoverEvent hoverEvent = new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal("§aClick to teleport"));
 
             // Create the component with style containing both events
             Style style = Style.EMPTY

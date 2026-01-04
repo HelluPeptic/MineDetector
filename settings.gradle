@@ -19,4 +19,4 @@ pluginManagement {
     }
 }
 
-rootProject.name = 'oredetector-1.21.11'
+rootProject.name = 'oredetector-1.21.1'
