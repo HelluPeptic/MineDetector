@@ -15,11 +15,13 @@ A server-side Minecraft Fabric mod for Minecraft 1.21.1 that detects and logs or
 - Prevents spam when mining large ore deposits
 
 ### 🔐 **Permission System**
-- Integrates with LuckPerms (optional)
-- Two permission nodes:
-  - `oredetector.detectionmessages` - Receive real-time mining notifications
-  - `oredetector.orelog` - Access to ore log command
-- Falls back to operator permissions if LuckPerms unavailable
+- Integrates with LuckPerms for granular permission control
+- **Two permission nodes:**
+  - `oredetector.detectionmessages` - Receive real-time mining notifications  
+  - `oredetector.orelog` - Access to ore log commands
+- **Without LuckPerms:** All players can see messages (for simple servers)
+- **With LuckPerms:** Only players with specific permissions see messages
+- **Recommendation:** Install LuckPerms for proper access control
 
 ### 📊 **Real-time Notifications**
 - Simple, clean notifications when players discover ore veins
