@@ -1,21 +1,22 @@
 package com.minedetector.commands;
 
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+
 import com.minedetector.storage.OreLogEntry;
 import com.minedetector.storage.OreLogStorage;
 import com.minedetector.util.PermissionUtil;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
-import com.mojang.brigadier.context.CommandContext;
+
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerPlayer;
-
-import java.time.format.DateTimeFormatter;
-import java.util.List;
 
 public class OreLogCommand {
 
@@ -24,6 +25,36 @@ public class OreLogCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(
                 Commands.literal("orelog")
+                        .executes(context -> {
+                            CommandSourceStack source = context.getSource();
+
+                            if (!(source.getEntity() instanceof ServerPlayer player)) {
+                                source.sendFailure(Component.literal("This command can only be run by a player."));
+                                return 0;
+                            }
+
+                            if (!PermissionUtil.hasOreLogPermission(player)) {
+                                source.sendFailure(Component.literal("§cYou don't have permission to view ore logs."));
+                                return 0;
+                            }
+
+                            List<OreLogEntry> entries = OreLogStorage.getEntriesWithinHours(24);
+
+                            if (entries.isEmpty()) {
+                                source.sendSuccess(() -> Component.literal("§eNo ore mining detected in the last 24 hours."), false);
+                                return 1;
+                            }
+
+                            source.sendSuccess(() -> Component.literal("§6==== Ore Log - Last 24 Hours ===="), false);
+                            source.sendSuccess(() -> Component.literal(String.format("§7Found %d mining events:", entries.size())), false);
+
+                            for (OreLogEntry entry : entries) {
+                                Component logMessage = createLogMessage(entry);
+                                source.sendSuccess(() -> logMessage, false);
+                            }
+
+                            return 1;
+                        })
                         .then(Commands.argument("hours", IntegerArgumentType.integer(1, 168))
                                 .executes(context -> {
                                     CommandSourceStack source = context.getSource();
@@ -56,37 +87,43 @@ public class OreLogCommand {
 
                                     return 1;
                                 })
+                                .then(Commands.argument("player", EntityArgument.player())
+                                        .executes(context -> {
+                                            CommandSourceStack source = context.getSource();
+
+                                            if (!(source.getEntity() instanceof ServerPlayer player)) {
+                                                source.sendFailure(Component.literal("This command can only be run by a player."));
+                                                return 0;
+                                            }
+
+                                            if (!PermissionUtil.hasOreLogPermission(player)) {
+                                                source.sendFailure(Component.literal("§cYou don't have permission to view ore logs."));
+                                                return 0;
+                                            }
+
+                                            int hours = IntegerArgumentType.getInteger(context, "hours");
+                                            ServerPlayer targetPlayer = EntityArgument.getPlayer(context, "player");
+                                            String targetPlayerName = targetPlayer.getName().getString();
+
+                                            List<OreLogEntry> entries = OreLogStorage.getEntriesWithinHours(hours, targetPlayerName);
+
+                                            if (entries.isEmpty()) {
+                                                source.sendSuccess(() -> Component.literal(String.format("§eNo ore mining by %s detected in the last %d hours.", targetPlayerName, hours)), false);
+                                                return 1;
+                                            }
+
+                                            source.sendSuccess(() -> Component.literal(String.format("§6=== Ore Log - %s - Last %d Hours ====", targetPlayerName, hours)), false);
+                                            source.sendSuccess(() -> Component.literal(String.format("§7Found %d mining events:", entries.size())), false);
+
+                                            for (OreLogEntry entry : entries) {
+                                                Component logMessage = createLogMessage(entry);
+                                                source.sendSuccess(() -> logMessage, false);
+                                            }
+
+                                            return 1;
+                                        })
+                                )
                         )
-                        .executes(context -> {
-                            CommandSourceStack source = context.getSource();
-
-                            if (!(source.getEntity() instanceof ServerPlayer player)) {
-                                source.sendFailure(Component.literal("This command can only be run by a player."));
-                                return 0;
-                            }
-
-                            if (!PermissionUtil.hasOreLogPermission(player)) {
-                                source.sendFailure(Component.literal("§cYou don't have permission to view ore logs."));
-                                return 0;
-                            }
-
-                            List<OreLogEntry> entries = OreLogStorage.getEntriesWithinHours(24);
-
-                            if (entries.isEmpty()) {
-                                source.sendSuccess(() -> Component.literal("§eNo ore mining detected in the last 24 hours."), false);
-                                return 1;
-                            }
-
-                            source.sendSuccess(() -> Component.literal("§6==== Ore Log - Last 24 Hours ===="), false);
-                            source.sendSuccess(() -> Component.literal(String.format("§7Found %d mining events:", entries.size())), false);
-
-                            for (OreLogEntry entry : entries) {
-                                Component logMessage = createLogMessage(entry);
-                                source.sendSuccess(() -> logMessage, false);
-                            }
-
-                            return 1;
-                        })
         );
 
         // Register custom teleport command that won't trigger security dialog

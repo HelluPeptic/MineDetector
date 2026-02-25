@@ -39,20 +39,22 @@ A server-side Minecraft Fabric mod for Minecraft 1.21.1 that detects and logs or
 
 ## Commands
 
-### `/orelog [hours]`
-View ore mining history for the specified time period.
+### `/orelog [hours] [player]`
+View ore mining history with optional time and player filtering.
 
-**Examples:**
-- `/orelog` - Show last 24 hours
-- `/orelog 6` - Show last 6 hours  
-- `/orelog 168` - Show last week (max)
+**Usage:**
+- `/orelog` - Show last 24 hours (all players)
+- `/orelog 6` - Show last 6 hours (all players)  
+- `/orelog 168` - Show last week (all players)
+- `/orelog 12 Steve` - Show last 12 hours for player Steve
+- `/orelog 24 Alex` - Show last 24 hours for player Alex
 
 **Output includes:**
 - Timestamp of mining event
 - Player name
 - Number of ores in vein
 - Ore type
-- Exact coordinates
+- Exact coordinates with clickable teleport
 - Dimension
 
 ## Permissions
@@ -94,7 +96,13 @@ Using the log command:
 /orelog 2
 === Ore Log - Last 2 Hours ====
 Found 3 mining events:
-[Jan 03 14:32:15] Steve mined 8x diamond at 123, -45, 678 (Overworld) (Click to teleport: /tp @s 123 -45 678)
-[Jan 03 13:45:22] Alex mined 12x iron at 234, 56, 789 (Overworld) (Click to teleport: /tp @s 234 56 789)
-[Jan 03 13:12:08] Steve mined 4x gold at -45, 32, -123 (Nether) (Click to teleport: /tp @s -45 32 -123)
+[Jan 03 14:32:15] Steve mined 8x diamond at 123, -45, 678 (Overworld) (Click to teleport)
+[Jan 03 13:45:22] Alex mined 12x iron at 234, 56, 789 (Overworld) (Click to teleport)  
+[Jan 03 13:12:08] Steve mined 4x gold at -45, 32, -123 (Nether) (Click to teleport)
+
+/orelog 6 Steve  
+=== Ore Log - Steve - Last 6 Hours ====
+Found 2 mining events:
+[Jan 03 14:32:15] Steve mined 8x diamond at 123, -45, 678 (Overworld) (Click to teleport)
+[Jan 03 13:12:08] Steve mined 4x gold at -45, 32, -123 (Nether) (Click to teleport)
 ```

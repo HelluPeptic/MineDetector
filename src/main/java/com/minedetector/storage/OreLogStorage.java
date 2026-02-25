@@ -1,12 +1,5 @@
 package com.minedetector.storage;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.minecraft.server.MinecraftServer;
-
-import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
@@ -17,6 +10,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.minecraft.server.MinecraftServer;
 
 public class OreLogStorage {
 
@@ -76,6 +76,22 @@ public class OreLogStorage {
         List<OreLogEntry> allEntries = new ArrayList<>(oreLog);
         allEntries.sort((a, b) -> b.getTimestamp().compareTo(a.getTimestamp()));
         return allEntries;
+    }
+
+    public static List<OreLogEntry> getEntriesWithinHours(int hours, String playerName) {
+        LocalDateTime cutoff = LocalDateTime.now().minusHours(hours);
+        List<OreLogEntry> filteredEntries = new ArrayList<>();
+
+        for (OreLogEntry entry : oreLog) {
+            if (entry.getTimestamp().isAfter(cutoff) && 
+                entry.getPlayerName().equalsIgnoreCase(playerName)) {
+                filteredEntries.add(entry);
+            }
+        }
+
+        // Sort by timestamp, newest first
+        filteredEntries.sort((a, b) -> b.getTimestamp().compareTo(a.getTimestamp()));
+        return filteredEntries;
     }
 
     private static void loadFromFile() {
